@@ -4,24 +4,23 @@
       {{ city }}
       <div class="flex">
         <div
-          v-for="({tempMax, tempMin, iconDay,fxDate}, index) in daily"
+          v-for="({ tempMax, tempMin, iconDay, fxDate, textDay, textNight },
+          index) in daily"
           :key="fxDate"
         >
           <div>{{ getDayDesc(index) }}</div>
           <div>{{ getTmpDesc(tempMax, tempMin) }}</div>
-          <img :src="require('./128/' + iconDay + '.png')" alt="logo.png">
+          <img :src="require('./128/' + iconDay + '.png')" alt="logo.png" />
+          <div>{{ getTqwDesc(textDay, textNight) }}</div>
         </div>
       </div>
-      <img src="/static/128/100.png" alt="">
-      <img src="../assets/logo.png" alt="logo2.png">
+      <img src="/static/128/100.png" alt="" />
     </div>
   </div>
 </template>
 
 <script>
-
-const weatherApi = `https://devapi.qweather.com/v7/weather/3d`
-
+const weatherApi = `https://devapi.qweather.com/v7/weather/3d`;
 
 export default {
   name: "WeatherComp",
@@ -39,8 +38,7 @@ export default {
       daily: null,
     };
   },
-  computed: {
-  },
+  computed: {},
   watch: {
     sensor: {
       immediate: true,
@@ -75,15 +73,15 @@ export default {
     async getWeather() {
       const { data } = await this.$http.get(weatherApi, {
         params: {
-          location: this.sensor.join(','),
-          key: 'd4ca037cd1f34249958320ebb31b42fb'
-        }
-      })
-      console.log(data)
-      if (data.code !== '200') {
-        console.error('接口异常')
+          location: this.sensor.join(","),
+          key: "d4ca037cd1f34249958320ebb31b42fb",
+        },
+      });
+      console.log(data);
+      if (data.code !== "200") {
+        console.error("接口异常");
       }
-      this.daily = data.daily
+      this.daily = data.daily;
     },
   },
 };
