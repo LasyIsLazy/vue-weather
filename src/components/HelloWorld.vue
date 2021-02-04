@@ -1,27 +1,27 @@
 <template>
   <div class="weather-comp">
-    <div v-if="weather">
+    <div v-if="daily">
       {{ city }}
       <div class="flex">
         <div
-          v-for="({ tmp_max, tmp_min, tqw_txt_d, tqw_txt_n },
-          index) in forecast"
+          v-for="({tempMax, tempMin, iconDay,fxDate}, index) in daily"
+          :key="fxDate"
         >
           <div>{{ getDayDesc(index) }}</div>
-          <div>{{ getTmpDesc(tmp_max, tmp_min) }}</div>
-          <div>{{ getTqwDesc(tqw_txt_d, tqw_txt_n) }}</div>
+          <div>{{ getTmpDesc(tempMax, tempMin) }}</div>
+          <img :src="require('./128/' + iconDay + '.png')" alt="logo.png">
         </div>
       </div>
+      <img src="/static/128/100.png" alt="">
+      <img src="../assets/logo.png" alt="logo2.png">
     </div>
   </div>
 </template>
 
 <script>
-const getIpUrlBase = "https://api.aidioute.cn/ip/";
-const getLocationInfoUrlBase =
-  "https://search.heweather.net/find?key=0e6b2177d7f3421d8495e805eef57c73&group=cn&lang=zh&location=";
-const getWeatherUrlBase =
-  "https://apip.weatherdt.com/plugin/data?key=6gpFegk3V9&lang=zh&location=";
+
+const weatherApi = `https://devapi.qweather.com/v7/weather/3d`
+
 
 export default {
   name: "WeatherComp",
@@ -35,27 +35,17 @@ export default {
   },
   data() {
     return {
-      position: null,
-      weather: null,
+      city: null,
+      daily: null,
     };
   },
   computed: {
-    city() {
-      return this.position.city;
-    },
-    forecast() {
-      return this.weather.forecast.forecast;
-    },
   },
   watch: {
     sensor: {
       immediate: true,
       async handler([lat, lon]) {
         console.log(lat, lon);
-        await this.getCode();
-        if (!this.position) {
-          return;
-        }
         await this.getWeather();
       },
     },
@@ -82,44 +72,18 @@ export default {
       }
       return `${d}转${n}`;
     },
-    async getCode() {
-      let getCodeUrl = `${getLocationInfoUrlBase}${this.sensor[0]},${this.sensor[1]}`;
-      const resultData = await this.$http.get(getCodeUrl);
-      console.log("resultData", resultData);
-      if (resultData.status === 200) {
-        if (resultData.data.HeWeather6[0].status === "ok") {
-          this.position = {
-            code: resultData.data.HeWeather6[0].basic[0].cid.match(/\d+/)[0],
-            province: resultData.data.HeWeather6[0].basic[0].admin_area,
-            city: resultData.data.HeWeather6[0].basic[0].parent_city,
-            area: resultData.data.HeWeather6[0].basic[0].location,
-          };
-        } else {
-          console.log("获取位置失败");
-          this.location = null;
-        }
-      } else {
-        console.log("获取位置信息时网络错误");
-        this.location = null;
-      }
-    },
     async getWeather() {
-      const url = `${getWeatherUrlBase}${this.position.code}`;
-      const weather = await this.$http.get(url);
-      if (weather.status === 200) {
-        if (weather.data.status === "ok") {
-          // this.weather = {
-          //   ...weather.data.now,
-          //   aqi: weather.data.aqi.aqi,
-          //   aqi_txt: weather.data.aqi.txt,
-          // };
-          this.weather = weather.data;
-        } else {
-          console.log("获取天气失败。");
+      const { data } = await this.$http.get(weatherApi, {
+        params: {
+          location: this.sensor.join(','),
+          key: 'd4ca037cd1f34249958320ebb31b42fb'
         }
-      } else {
-        console.log("网络错误。");
+      })
+      console.log(data)
+      if (data.code !== '200') {
+        console.error('接口异常')
       }
+      this.daily = data.daily
     },
   },
 };
