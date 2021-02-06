@@ -1,7 +1,7 @@
 <template>
   <div class="weather-comp">
     <div v-if="daily">
-      {{ city }}
+      <div v-if="city">{{ city.adm2 }} {{ city.name }}</div>
       <div class="flex">
         <div
           v-for="({ tempMax, tempMin, iconDay, fxDate, textDay, textNight },
@@ -21,6 +21,8 @@
 
 <script>
 const weatherApi = `https://devapi.qweather.com/v7/weather/3d`;
+const cityApi = `https://geoapi.qweather.com/v2/city/lookup`;
+const key = `d4ca037cd1f34249958320ebb31b42fb`
 
 export default {
   name: "WeatherComp",
@@ -44,7 +46,8 @@ export default {
       immediate: true,
       async handler([lat, lon]) {
         console.log(lat, lon);
-        await this.getWeather();
+        this.getCity();
+        this.getWeather();
       },
     },
   },
@@ -56,7 +59,7 @@ export default {
       return (
         "周" +
         ["一", "二", "三", "四", "五", "六", "日"][
-          new Date().getDay() - 1 + index
+          (new Date().getDay() - 1 + index) % 7
         ]
       );
     },
@@ -74,14 +77,26 @@ export default {
       const { data } = await this.$http.get(weatherApi, {
         params: {
           location: this.sensor.join(","),
-          key: "d4ca037cd1f34249958320ebb31b42fb",
+          key,
         },
       });
       console.log(data);
       if (data.code !== "200") {
-        console.error("接口异常");
+        console.error("天气接口异常");
       }
       this.daily = data.daily;
+    },
+    async getCity() {
+      const { data } = await this.$http.get(cityApi, {
+        params: {
+          key,
+          location: this.sensor.join(","),
+        },
+      });
+      if (data.code !== "200") {
+        console.error("城市接口异常");
+      }
+      this.city = data.location[0];
     },
   },
 };
