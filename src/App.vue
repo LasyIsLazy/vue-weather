@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <HelloWorld :sensor="[116.397128,39.916527]"/>
+    <Index :sensor="[116.397128,39.916527]"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Index from './components/WeatherComp.vue/Index.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Index
   }
 }
 </script>
