@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <Index :sensor="[116.397128,39.916527]"/>
+    <WeatherComp :sensor="[116.397128,39.916527]"/>
   </div>
 </template>
 
 <script>
-import Index from './components/WeatherComp.vue/Index.vue'
+import WeatherComp from './components/WeatherComp.vue/Index.vue'
 
 export default {
   name: 'App',
   components: {
-    Index
+    WeatherComp
   }
 }
 </script>
